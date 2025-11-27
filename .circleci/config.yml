@@ -2,68 +2,63 @@ version: 2.1
 
 jobs:
   build-and-dockerize:
-    parameters:
-      app_name:
-        type: string
-        default: "studentmarkservice"
-      image_name:
-        type: string
-        default: "studentmarkservice-image"
-      app_port:
-        type: integer
-        default: 8100
-      registry:
-        type: string
-        default: "docker.io"
-      image_tag:
-        type: string
-        default: "latest"
-
     docker:
       - image: cimg/openjdk:21.0
 
-    environment:
-      APP_NAME: << parameters.app_name >>
-      IMAGE_NAME: << parameters.image_name >>
-      APP_PORT: << parameters.app_port >>
-      REGISTRY: << parameters.registry >>
-      IMAGE_TAG: << parameters.image_tag >>
-      FULL_IMAGE_TAG: ${REGISTRY}/${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}
-
     steps:
       - checkout
+
+      # Restore Maven cache
       - restore_cache:
           keys:
             - maven-repo-{{ checksum "pom.xml" }}
             - maven-repo-
+
+      # Build JAR with Maven (skip tests optional)
       - run:
-          name: Build JAR using Maven (Skip Tests)
+          name: Build JAR using Maven
           command: |
             mvn dependency:resolve
             mvn package -DskipTests
+
+      # Save Maven cache
       - save_cache:
           paths:
             - ~/.m2
           key: maven-repo-{{ checksum "pom.xml" }}
+
+      # Setup Docker
       - setup_remote_docker:
           docker_layer_caching: true
+
+      # Log in to Docker Hub
       - run:
-          name: Log in to Docker Hub
+          name: Docker Hub Login
           command: |
-            echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin $REGISTRY
+            echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+
+      # Build Docker image
       - run:
-          name: Build and Push Docker Image
+          name: Build Docker Image
           command: |
-            docker build -t ${FULL_IMAGE_TAG} .
-            docker push ${FULL_IMAGE_TAG}
+            docker build -t studentmarkservice:latest .
+
+      # Push Docker image to Docker Hub
       - run:
-          name: Display Success Message
+          name: Push Docker Image
           command: |
-            echo "Maven build and Docker image pushed successfully! Tag: ${FULL_IMAGE_TAG}"
+            docker tag studentmarkservice:latest $DOCKERHUB_USERNAME/studentmarkservice:latest
+            docker push $DOCKERHUB_USERNAME/studentmarkservice:latest
+
+      # Display success
+      - run:
+          name: Success Message
+          command: |
+            echo "Docker image studentmarkservice:latest built and pushed successfully!"
 
 workflows:
   version: 2
-  build_test_and_deploy:
+  build_and_push:
     jobs:
       - build-and-dockerize:
           filters:
@@ -71,5 +66,3 @@ workflows:
               only:
                 - main
                 - devpos_std
-            tags:
-              ignore: /.*/
