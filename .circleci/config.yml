@@ -48,7 +48,7 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run:
-          name: Log in to Container Registry (Docker Hub)
+          name: Log in to Docker Hub
           command: |
             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin $REGISTRY
       - run:
@@ -59,7 +59,7 @@ jobs:
       - run:
           name: Display Success Message
           command: |
-          echo "Maven build and Docker image pushed successfully! Tag: ${FULL_IMAGE_TAG}"
+            echo "Maven build and Docker image pushed successfully! Tag: ${FULL_IMAGE_TAG}"
 
 workflows:
   version: 2
@@ -70,5 +70,6 @@ workflows:
             branches:
               only:
                 - main
+                - devpos_std
             tags:
               ignore: /.*/
