@@ -14,7 +14,7 @@ jobs:
             - maven-repo-{{ checksum "pom.xml" }}
             - maven-repo-
 
-      # Build JAR with Maven (skip tests optional)
+      # Build JAR using Maven
       - run:
           name: Build JAR using Maven
           command: |
@@ -66,3 +66,5 @@ workflows:
               only:
                 - main
                 - devpos_std
+            tags:
+              ignore: /.*/   # This ensures all tags are ignored
