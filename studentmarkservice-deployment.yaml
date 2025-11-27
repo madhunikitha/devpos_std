@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: studentmarkservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: studentmarkservice
+  template:
+    metadata:
+      labels:
+        app: studentmarkservice
+    spec:
+      containers:
+        - name: studentmarkservice
+          image: studentmarkservice:latest
+          imagePullPolicy: Never
+
+          ports:
+            - containerPort: 8100
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: DB_PASSWORD

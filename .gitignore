@@ -1,4 +1,7 @@
 HELP.md
+# Local environment variables
+.env
+db-secret.yaml
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/

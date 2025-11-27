@@ -11,7 +11,7 @@ import java.util.List;
 @RequestMapping("/students")
 public class StudentMarkServiceController {
     @Autowired
-    private  StudentMarkService studentMarkService;
+    private StudentMarkService studentMarkService;
 
     @PostMapping("addOne")
     public ResponseEntity<Student> addOneStudent(@RequestBody Student student) {
