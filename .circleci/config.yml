@@ -20,7 +20,7 @@ jobs:
         default: "latest"
 
     docker:
-      - image: cimg/openjdk:11.0.29
+      - image: cimg/openjdk:21.0
 
     environment:
       APP_NAME: << parameters.app_name >>
